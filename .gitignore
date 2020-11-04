@@ -6,3 +6,10 @@
 !/quartus/Makefile
 !/quartus/*.tcl
 !/quartus/*.qsys
+
+/fpga/*
+
+!/fpga/src
+/fpga/src/*
+
+!/fpga/src/*.vhd
