@@ -5,3 +5,4 @@
 !/quartus/*.sdc
 !/quartus/Makefile
 !/quartus/*.tcl
+!/quartus/*.qsys
