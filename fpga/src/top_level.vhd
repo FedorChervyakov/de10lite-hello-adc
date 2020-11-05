@@ -2,6 +2,7 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
+
 entity top_level is
     port (
         -- Clocks
@@ -53,6 +54,7 @@ entity top_level is
     );
 end entity;
 
+
 architecture A of top_level is
     component hello_adc is
         port (
@@ -84,24 +86,82 @@ architecture A of top_level is
             reset_reset_n                           : in  std_logic := '0'
         );
     end component hello_adc;
-    
-    -- signals
 
+    component BCD_7_segment is
+        port (
+            -- BCD input
+            BCD   : in std_logic_vector(3 downto 0);
+            reset : in std_logic;
+
+            -- 7-segment output
+            seven_sig : out std_logic_vector(6 downto 0)
+        );
+    end component BCD_7_segment;
+
+    -- ADC signals
+    signal req_channel, cur_channel : std_logic_vector(4 downto 0);
+    signal sample_data              : std_logic_vector(11 downto 0);
+    signal vol                      : unsigned(12 downto 0);
+    signal adc_cc_command_ready     : std_logic;
+    signal adc_cc_response_valid    : std_logic;
+    signal adc_cc_response_channel  : std_logic_vector(4 downto 0); 
+    signal adc_cc_response_data     : std_logic_vector(11 downto 0);
+    -- system clock and reset
+    signal sys_clk, nreset : std_logic;
 begin
---    qsys_u0 : component hello_adc
---    port map (
---        adc_control_core_command_valid
---        adc_control_core_command_channel
---        adc_control_core_command_startofpacket
---        adc_control_core_command_endofpacket
---        adc_control_core_command_ready
---        adc_control_core_response_valid
---        adc_control_core_response_channel
---        adc_control_core_response_data
---        adc_control_core_response_startofpacket
---        adc_control_core_response_endofpacket
---        clk_clk
---        clock_bridge_out_clk_clk
---        reset_reset_n
---    );
+    -- system reset active low
+    nreset <= not KEY(0);
+
+    -- calculate channel used for sampling
+    -- Available channels on DE10-Lite are 1-6
+    -- use slide switches (SW) to select the channel
+    -- SW(2 downto 0) down: map to arduino ADC_IN0
+    adc_command : process(sys_clk, SW, adc_cc_command_ready)
+        variable temp : std_logic_vector(4 downto 0) := (others => '0');
+    begin
+        if rising_edge(sys_clk) then
+            if (adc_cc_command_ready = '1') then
+                temp(2 downto 0) := std_logic_vector(unsigned(SW(2 downto 0)) + 1);
+            end if;
+        end if;
+        req_channel <= temp;
+    end process;
+
+    -- read the sampled value from the ADC
+    adc_read : process(sys_clk, adc_cc_response_valid)
+        variable reading : std_logic_vector(11 downto 0) := (others => '0');
+        variable ch      : std_logic_vector(4 downto 0) := (others => '0');
+    begin
+        if rising_edge(sys_clk) then
+            if (adc_cc_response_valid = '1') then
+                reading := adc_cc_response_data;
+                ch := adc_cc_response_channel;
+            end if;
+        end if;
+        cur_channel <= ch;
+        sample_data <= reading;
+    end process;
+
+    vol <= resize(shift_right(resize(unsigned(sample_data) * 2 * 2500, 25) / 4095, 12), 13);
+    LEDR <= std_logic_vector(vol(12 downto 3));
+
+    -- instantiate QSYS subsystem with ADC and PLL
+    qsys_u0 : component hello_adc
+    port map (
+        -- command always valid
+        adc_control_core_command_valid => '1',
+        adc_control_core_command_channel => req_channel,
+        -- startofpacket and endofpacket are ignored in adc_control_core
+        adc_control_core_command_startofpacket => '1',
+        adc_control_core_command_endofpacket => '1',
+        adc_control_core_command_ready => adc_cc_command_ready,
+        adc_control_core_response_valid => adc_cc_response_valid,
+        adc_control_core_response_channel => adc_cc_response_channel,
+        adc_control_core_response_data => adc_cc_response_data,
+        adc_control_core_response_startofpacket => open,
+        adc_control_core_response_endofpacket => open,
+        clk_clk => MAX10_CLK1_50,
+        clock_bridge_out_clk_clk => sys_clk,
+        reset_reset_n => nreset
+    );
 end architecture A;
