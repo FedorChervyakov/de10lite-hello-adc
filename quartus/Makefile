@@ -9,7 +9,7 @@ PART = 10M50DAF484C7G
 
 ###################################################################
 # Setup your sources here
-QSYS_BASE = ../fpga/qsys
+QSYS_BASE = qsys
 
 QSYS_SYN_FILES = $(addprefix $(QSYS_BASE)/synthesis/$(QSYS_PROJECT),.qip .vhd) \
 				 $(shell find $(QSYS_BASE)/synthesis/submodules -type f)
