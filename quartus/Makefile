@@ -11,10 +11,11 @@ PART = 10M50DAF484C7G
 # Setup your sources here
 QSYS_BASE = ../fpga/qsys
 
-QSYS_FILES = $(addprefix $(QSYS_BASE)/synthesis/$(QSYS_PROJECT),.qip .vhd) \
-			 $(shell find $(QSYS_BASE)/synthesis/submodules -type f)
+QSYS_SYN_FILES = $(addprefix $(QSYS_BASE)/synthesis/$(QSYS_PROJECT),.qip .vhd) \
+				 $(shell find $(QSYS_BASE)/synthesis/submodules -type f)
+QSYS_SIM_FILES = $(addprefix $(QSYS_BASE)/simulation/$(QSYS_PROJECT),.sip .vhd)
 
-SRCS = $(wildcard ../fpga/src/*.vhd) $(QSYS_FILES)
+SRCS = $(wildcard ../fpga/src/*.vhd) $(QSYS_SYN_FILES)
 
 ###################################################################
 # Main Targets
@@ -29,7 +30,9 @@ clean:
 	rm -rf *.rpt *.chg smart.log *.htm *.eqn *.pin *.sof *.pof \
 		db incremental_db $(QSYS_PROJECT)
 
-qsys: $(QSYS_FILES)
+qsys: qsys-syn qsys-sim
+qsys-syn: $(QSYS_SYN_FILES)
+qsys-sim: $(QSYS_SIM_FILES)
 map: smart.log $(PROJECT).map.rpt
 fit: smart.log $(PROJECT).fit.rpt
 asm: smart.log $(PROJECT).asm.rpt
@@ -39,10 +42,15 @@ smart: smart.log
 ###################################################################
 # QSYS Configuration and Generation
 ###################################################################
-QSYS_ARGS = --synthesis=VHDL --output-directory=$(QSYS_BASE)
+QSYS_SYN_ARGS = --synthesis=VHDL --output-directory=$(QSYS_BASE)
 
-$(QSYS_FILES): $(QSYS_PROJECT).qsys
-	qsys-generate $(QSYS_ARGS) $(QSYS_PROJECT).qsys
+$(QSYS_SYN_FILES): $(QSYS_PROJECT).qsys
+	qsys-generate $(QSYS_SYN_ARGS) $(QSYS_PROJECT).qsys
+
+QSYS_SIM_ARGS = --simulation=VHDL --output-directory=$(QSYS_BASE)
+
+$(QSYS_SIM_FILES): $(QSYS_PROJECT).qsys
+	qsys-generate $(QSYS_SIM_ARGS) $(QSYS_PROJECT).qsys
 
 ###################################################################
 # Executable Configuration
