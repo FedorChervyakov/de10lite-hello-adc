@@ -6,3 +6,7 @@
 !/quartus/Makefile
 !/quartus/*.tcl
 !/quartus/*.qsys
+
+/verification/*
+!/verification/*.do
+!/verification/*.tcl
