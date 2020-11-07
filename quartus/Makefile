@@ -24,7 +24,7 @@ SRCS = $(wildcard ../fpga/src/*.vhd) $(QSYS_SYN_FILES)
 # clean: remove output files and database
 # program: program your device with the compiled design
 ###################################################################
-all: smart.log $(PROJECT).asm.rpt $(PROJECT).sta.rpt
+all: smart.log $(PROJECT).asm.rpt $(PROJECT).sta.rpt qsys-sim
 
 clean:
 	rm -rf *.rpt *.chg smart.log *.htm *.eqn *.pin *.sof *.pof \
