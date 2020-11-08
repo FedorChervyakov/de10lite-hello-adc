@@ -26,7 +26,9 @@ vmap work rtl_work
 
 echo " * Build the source"
 vcom -93 -work work $src/BCD_7_segment.vhd
+vcom -93 -work work $src/adc_sample_to_BCD.vhd
 vcom -93 -work work $tb/tb_BCD_7_segment.vhd
+vcom -93 -work work $tb/tb_adc_sample_to_BCD.vhd
 
 # -----------------------------------------------------------------
 # Testbench procedures
@@ -36,5 +38,12 @@ proc tb_BCD_7_segment {} {
 	global verification
     vsim tb_BCD_7_segment
 	do $verification/tb_BCD_7_segment.do
+	run -a
+}
+
+proc tb_adc_sample_to_BCD {} {
+	global verification
+    vsim tb_adc_sample_to_BCD
+	do $verification/tb_adc_sample_to_BCD.do
 	run -a
 }
