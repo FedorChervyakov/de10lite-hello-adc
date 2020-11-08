@@ -2,6 +2,10 @@ onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate -radix unsigned /tb_adc_sample_to_BCD/dut/adc_sample
 add wave -noupdate -radix unsigned /tb_adc_sample_to_BCD/dut/vol
+add wave -noupdate -radix unsigned /tb_adc_sample_to_BCD/dut/ones
+add wave -noupdate -radix unsigned /tb_adc_sample_to_BCD/dut/tenths
+add wave -noupdate -radix unsigned /tb_adc_sample_to_BCD/dut/hundredths
+add wave -noupdate -radix unsigned /tb_adc_sample_to_BCD/dut/thousandths
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ns} 0}
 configure wave -namecolwidth 196
@@ -18,4 +22,4 @@ configure wave -griddelta 50
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ns} {100 ns}
+WaveRestoreZoom {0 ns} {150 ns}
