@@ -100,24 +100,35 @@ architecture A of top_level is
 
     component adc_sample_to_BCD is
         port (
-            adc_sample : in std_logic_vector(11 downto 0);
-            vol        : out std_logic_vector(12 downto 0)
+            adc_sample  : in std_logic_vector(11 downto 0);
+            vol         : out std_logic_vector(12 downto 0);
+            ones        : out std_logic_vector(3 downto 0);
+            tenths      : out std_logic_vector(3 downto 0);
+            hundredths  : out std_logic_vector(3 downto 0);
+            thousandths : out std_logic_vector(3 downto 0)
         );
     end component;
 
     -- ADC signals
     signal req_channel, cur_channel : std_logic_vector(4 downto 0);
     signal sample_data              : std_logic_vector(11 downto 0);
-    signal vol                      : std_logic_vector(12 downto 0);
     signal adc_cc_command_ready     : std_logic;
     signal adc_cc_response_valid    : std_logic;
     signal adc_cc_response_channel  : std_logic_vector(4 downto 0);
     signal adc_cc_response_data     : std_logic_vector(11 downto 0);
+
+    -- BCD signals
+    signal ones        : std_logic_vector(3 downto 0);
+    signal tenths      : std_logic_vector(3 downto 0);
+    signal hundredths  : std_logic_vector(3 downto 0);
+    signal thousandths : std_logic_vector(3 downto 0);
+
     -- system clock and reset
-    signal sys_clk, nreset : std_logic;
+    signal sys_clk, nreset, reset : std_logic;
 begin
-    -- system reset active low
-    nreset <= not KEY(0);
+    -- system reset
+    reset <= KEY(0);
+    nreset <= not reset;
 
     -- calculate channel used for sampling
     -- Available channels on DE10-Lite are 1-6
@@ -150,10 +161,35 @@ begin
     end process;
 
     -- instantiate ADC sample to BCD converter
-    adc_sample_to_BCD : adc_sample_to_BCD
-    port map (adc_sample => sample_data, vol => vol);
+    adc_sample_to_BCD_conv : adc_sample_to_BCD
+    port map (
+        adc_sample => sample_data,
+        vol => open,
+        ones => ones,
+        tenths => tenths,
+        hundredths => hundredths,
+        thousandths => thousandths
+    );
 
-    GPIO(12 downto 0) <= vol;
+    -- instantiate 7 segment displays
+    hex_ones : BCD_7_segment
+        port map (BCD => ones, reset => reset, seven_sig => HEX3(6 downto 0));
+
+    hex_tenths : BCD_7_segment
+        port map (BCD => tenths, reset => reset, seven_sig => HEX2(6 downto 0));
+
+    hex_hundredths : BCD_7_segment
+        port map (BCD => hundredths, reset => reset, seven_sig => HEX1(6 downto 0));
+
+    hex_thousandths : BCD_7_segment
+        port map (BCD => thousandths, reset => reset, seven_sig => HEX0(6 downto 0));
+
+    -- enable/disable decimal points on HEX display appropriately
+    HEX3(7) <= '0'; -- point enabled
+    HEX2(7) <= '1'; -- point disabled
+    HEX1(7) <= '1'; -- point disabled
+    HEX0(7) <= '1'; -- point disabled
+
 
     -- instantiate QSYS subsystem with ADC and PLL
     qsys_u0 : component hello_adc
