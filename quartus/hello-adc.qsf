@@ -59,4 +59,5 @@ set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_
 set_global_assignment -name SDC_FILE DE10LiteClockAssignments.sdc
 set_global_assignment -name VHDL_FILE ../fpga/src/top_level.vhd
 set_global_assignment -name VHDL_FILE ../fpga/src/BCD_7_segment.vhd
+set_global_assignment -name VHDL_FILE ../fpga/src/adc_sample_to_BCD.vhd
 set_global_assignment -name QIP_FILE qsys/synthesis/hello_adc.qip
