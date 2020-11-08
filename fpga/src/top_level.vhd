@@ -98,13 +98,20 @@ architecture A of top_level is
         );
     end component BCD_7_segment;
 
+    component adc_sample_to_BCD is
+        port (
+            adc_sample : in std_logic_vector(11 downto 0);
+            vol        : out std_logic_vector(12 downto 0)
+        );
+    end component;
+
     -- ADC signals
     signal req_channel, cur_channel : std_logic_vector(4 downto 0);
     signal sample_data              : std_logic_vector(11 downto 0);
-    signal vol                      : unsigned(12 downto 0);
+    signal vol                      : std_logic_vector(12 downto 0);
     signal adc_cc_command_ready     : std_logic;
     signal adc_cc_response_valid    : std_logic;
-    signal adc_cc_response_channel  : std_logic_vector(4 downto 0); 
+    signal adc_cc_response_channel  : std_logic_vector(4 downto 0);
     signal adc_cc_response_data     : std_logic_vector(11 downto 0);
     -- system clock and reset
     signal sys_clk, nreset : std_logic;
@@ -142,8 +149,11 @@ begin
         sample_data <= reading;
     end process;
 
-    vol <= resize(shift_right(resize(unsigned(sample_data) * 2 * 2500, 25) / 4095, 12), 13);
-    LEDR <= std_logic_vector(vol(12 downto 3));
+    -- instantiate ADC sample to BCD converter
+    adc_sample_to_BCD : adc_sample_to_BCD
+    port map (adc_sample => sample_data, vol => vol);
+
+    GPIO(12 downto 0) <= vol;
 
     -- instantiate QSYS subsystem with ADC and PLL
     qsys_u0 : component hello_adc
