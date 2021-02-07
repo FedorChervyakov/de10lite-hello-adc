@@ -264,11 +264,11 @@
   <parameter name="use_ch14" value="false" />
   <parameter name="use_ch15" value="false" />
   <parameter name="use_ch16" value="false" />
-  <parameter name="use_ch2" value="false" />
-  <parameter name="use_ch3" value="false" />
-  <parameter name="use_ch4" value="false" />
-  <parameter name="use_ch5" value="false" />
-  <parameter name="use_ch6" value="false" />
+  <parameter name="use_ch2" value="true" />
+  <parameter name="use_ch3" value="true" />
+  <parameter name="use_ch4" value="true" />
+  <parameter name="use_ch5" value="true" />
+  <parameter name="use_ch6" value="true" />
   <parameter name="use_ch7" value="false" />
   <parameter name="use_ch8" value="false" />
   <parameter name="use_ch9" value="false" />
