@@ -127,7 +127,7 @@ architecture A of top_level is
     signal sys_clk, nreset, reset : std_logic;
 begin
     -- system reset
-    reset <= KEY(0);
+    reset <= not KEY(0);
     nreset <= not reset;
 
     -- calculate channel used for sampling
