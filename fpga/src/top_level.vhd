@@ -184,6 +184,10 @@ begin
     hex_thousandths : BCD_7_segment
         port map (BCD => thousandths, reset => reset, seven_sig => HEX0(6 downto 0));
 
+    -- turn off HEX4 and HEX5
+    HEX5 <= (others => '1');
+    HEX4 <= (others => '1');
+
     -- enable/disable decimal points on HEX display appropriately
     HEX3(7) <= '0'; -- point enabled
     HEX2(7) <= '1'; -- point disabled
